@@ -1,0 +1,18 @@
+/* Cores do Coleta+ (verde da logo). Mexa só aqui para trocar a paleta. */
+.radix-themes[data-accent-color="green"] {
+  --accent-9: #0a6437;
+  --accent-10: #085530;
+  --accent-11: #0a6437;
+  --accent-contrast: #ffffff;
+}
+.dark .radix-themes[data-accent-color="green"],
+.radix-themes.dark[data-accent-color="green"] {
+  --accent-9: #3dbe7a;
+  --accent-10: #52cc8b;
+  --accent-11: #3dbe7a;
+  --accent-contrast: #00160a;
+}
+/* fundo branco no tema claro e preto no escuro */
+.radix-themes { --color-background: #ffffff; font-family: "Figtree", system-ui, sans-serif; }
+.dark .radix-themes, .radix-themes.dark { --color-background: #000000; }
+h1, h2, h3 { font-family: "Bricolage Grotesque", system-ui, sans-serif; letter-spacing: -0.01em; }
