@@ -8,7 +8,7 @@ CAPACIDADE_CAMINHAO = 20
 
  # n = qtd de pts. 
 
-def gerarProblemaCV(n):
+def gerarProblemaCV(pontos):
 
     # distan_min = menor valor de distancia. 
     distan_min = 1
@@ -16,11 +16,11 @@ def gerarProblemaCV(n):
     distan_max = 50
 
     # cria uma matriz n por n completa de 0
-    matriz = np.zeros((n + 1, n + 1), dtype = int)
+    matriz = np.zeros((pontos + 1, pontos + 1), dtype = int)
 
     # ai ele preenche com as distancias aleatorias menos a diagonal
-    for i in range(n + 1):
-        for j in range(i + 1, n + 1):
+    for i in range(pontos + 1):
+        for j in range(i + 1, pontos + 1):
 
             # distancia aleatoria
             distancia = np.random.randint(distan_min, distan_max)
@@ -42,7 +42,7 @@ def gerarProblemaCV(n):
 
 
  # n = qtd de pts.
-def gerarProblemaMochila(n):
+def gerarProblemaMochila(pontos):
 
     # limite_min = menor qtd possivel de lixo. 
     limite_min = 1
@@ -50,7 +50,7 @@ def gerarProblemaMochila(n):
     limite_max = CAPACIDADE_CAMINHAO
 
     # cria um vetor 
-    lixo = np.random.randint(limite_min, limite_max, size = n + 1)# n+1 pq o deposito entra no vetor e a posicao 0 do vetor fica alinha com a da matriz 
+    lixo = np.random.randint(limite_min, limite_max, size = pontos + 1)# n+1 pq o deposito entra no vetor e a posicao 0 do vetor fica alinha com a da matriz 
     lixo[0] = 0 # o deposito nao tem lixo
 
     return lixo
@@ -65,17 +65,17 @@ def gerarProblemaMochila(n):
 
 
  # une os dois gerarProblema
-def gerarProblemaAleatorio(n):
+def gerarProblemaAleatorio(pontos):
 
     # gera a matriz do caixeiro viajante
-    matriz = gerarProblemaCV(n)
+    matriz = gerarProblemaCV(pontos)
 
     # gera o vetor de residuos
-    lixo = gerarProblemaMochila(n)
+    lixo = gerarProblemaMochila(pontos )
 
     # junta todas as informacoes do problema
     problema = {
-        "n": n,
+        "n": pontos,
         "distancias": matriz,
         "residuos": lixo,
         "capacidade": CAPACIDADE_CAMINHAO   
@@ -114,10 +114,10 @@ def gerarProblemaFixo():
 
 
     
-def gerarProblema(tipo, n_pontos):
+def gerarProblema(tipo, pontos):
 
     if tipo == "aleatoria":
-        resultado = gerarProblemaAleatorio(n_pontos)
+        resultado = gerarProblemaAleatorio(pontos)
     elif tipo == "fixa":
         resultado = gerarProblemaFixo()
     else:
