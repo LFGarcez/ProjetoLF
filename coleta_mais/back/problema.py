@@ -75,7 +75,7 @@ def gerarProblemaAleatorio(pontos):
 
     # junta todas as informacoes do problema
     problema = {
-        "n": pontos,
+        "pontos": pontos,
         "distancias": matriz,
         "residuos": lixo,
         "capacidade": CAPACIDADE_CAMINHAO   
@@ -94,7 +94,7 @@ def gerarProblemaFixo():
 
 
     problema = {
-        "n": 5,
+        "pontos": 5,
         "distancias": np.array([[0 , 19, 8 , 30, 8 , 19],
                                 [19, 0 , 7 , 40, 13, 23],
                                 [8 , 7 , 0 , 31, 14, 39],

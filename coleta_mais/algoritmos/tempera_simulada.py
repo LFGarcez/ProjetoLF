@@ -1,17 +1,61 @@
-# ======================================================================
-# SEUS ALGORITMOS (este arquivo está vazio de propósito)
-#
-# Função que a tela procura aqui:
-#
-#   executar(problema, temp_inicial, temp_final, fator)
-#
-# "problema" é o dicionário criado em back/problema.py:
-#     {"capacidade": número, "pontos": [{"rotulo","residuo","x","y"}, ...]}
-#
-# O resultado é um dicionário. Todas as chaves são opcionais:
-#     "valor"        -> qualidade da melhor solução (número)
-#     "tempo"        -> segundos gastos (número)
-#     "selecionados" -> posições (0, 1, 2...) dos pontos escolhidos na mochila
-#     "rota"         -> posições dos pontos, na ordem de visita (caixeiro)
-#     "historico"    -> lista de números (melhor valor a cada passo), vira gráfico
-# ======================================================================
+import numpy as np 
+import math
+from back.comum import sucessoresMochila, sucessoresCv
+
+
+
+def temperaSimulada(si, vi, problema, ti, tf, fr, tipo):
+    solucao_atual = si
+    melhorsolucao = si
+    valor_atual = vi
+    melhorvalor = vi
+    temperatura = ti
+    
+    
+
+    while temperatura > tf:
+
+        if tipo == "mochila":
+            solucao_nova,valor_novo = sucessoresMochila("tempera", solucao_atual, valor_atual, problema)
+            diferenca = valor_novo - valor_atual
+            if diferenca > 0:
+                solucao_atual = solucao_nova
+                valor_atual = valor_novo
+                if valor_atual > melhorvalor:
+                    melhorsolucao = solucao_atual
+                    melhorvalor = valor_atual
+
+            else:
+                aleatorio = np.random.rand()
+                diferenca *= -1 
+                auxiliar = math.exp(-diferenca/temperatura)
+                if aleatorio < auxiliar:
+                    solucao_atual = solucao_nova
+                    valor_atual = valor_novo
+            temperatura *= fr
+
+
+
+
+
+        else:
+            solucao_nova,valor_novo = sucessoresCv("tempera", solucao_atual, valor_atual, problema)
+            diferenca = valor_novo - valor_atual
+            if diferenca < 0:
+                solucao_atual = solucao_nova
+                valor_atual = valor_novo
+                if valor_atual < melhorvalor:
+                    melhorsolucao = solucao_atual
+                    melhorvalor = valor_atual
+        
+            else:
+                aleatorio = np.random.rand()
+        
+                auxiliar = math.exp(-diferenca/temperatura)
+                if aleatorio < auxiliar:
+                    solucao_atual = solucao_nova
+                    valor_atual = valor_novo
+            temperatura *= fr
+
+
+    return  melhorsolucao, melhorvalor

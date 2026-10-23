@@ -5,23 +5,17 @@ função das pastas algoritmos/ e back/ (que são de vocês). Se a função aind
 avisa com uma mensagem em vez de quebrar.
 """
 import copy
-import importlib
 from typing import Any
 
 import reflex as rx
 
-# Arquivos do back-end (nome do módulo). A tela só os procura na hora de usar,
-# então um arquivo que ainda não existe NÃO derruba o app: aparece um aviso.
-ALG_SUBIDA = "algoritmos.subida_encosta"
-ALG_TENTATIVAS = "algoritmos.subida_encosta_tentativa"
-ALG_TEMPERA = "algoritmos.tempera_simulada"
-ALG_GENETICO = "algoritmos.genetico"
+from . import ponte
+from .ponte import NaoImplementado
+
+# Arquivos do back-end que a tela chama direto (a Busca local passa pela ponte).
 BK_PROBLEMA = "back.problema"
 BK_ANALISE = "back.analise"
-
-
-class NaoImplementado(Exception):
-    """A função do back-end ainda não foi criada."""
+ALG_GENETICO = "algoritmos.genetico"
 
 
 class CampoInvalido(Exception):
@@ -30,17 +24,7 @@ class CampoInvalido(Exception):
 
 def _chamar(modulo, nome, *args):
     """Importa o arquivo `modulo` e chama a função `nome` dele."""
-    arquivo = modulo.replace(".", "/") + ".py"
-    try:
-        mod = importlib.import_module(modulo)
-    except ModuleNotFoundError as erro:
-        if erro.name in (modulo, modulo.split(".")[0]):
-            raise NaoImplementado(f"Falta criar o arquivo {arquivo}")
-        raise
-    funcao = getattr(mod, nome, None)
-    if funcao is None:
-        raise NaoImplementado(f"Falta criar {nome}() em {arquivo}")
-    return funcao(*args)
+    return ponte.funcao(modulo, nome)(*args)
 
 
 def _numero(texto, nome, minimo=None, maximo=None, inteiro=False):
@@ -60,24 +44,37 @@ def _lista(valor):
     return valor.tolist() if hasattr(valor, "tolist") else valor
 
 
-def _resumir(resultado, rotulos):
+def _resumir(resultado, rotulos, capacidade):
     """Transforma o dicionário do algoritmo em textos prontos para a tela."""
     def nome(i):
         return rotulos[i] if 0 <= i < len(rotulos) else f"Ponto {i}"
 
-    def formatar(chave, sufixo=""):
+    def numero(chave, sufixo=""):
         try:
-            return f"{float(resultado[chave]):.2f}{sufixo}"
+            return f"{float(resultado[chave]):g}{sufixo}"
+        except (KeyError, TypeError, ValueError):
+            return "—"
+
+    def tempo():
+        try:
+            return f"{float(resultado['tempo']):.4f} s"
         except (KeyError, TypeError, ValueError):
             return "—"
 
     rota = [int(i) for i in _lista(resultado.get("rota", []))]
     selecionados = [int(i) for i in _lista(resultado.get("selecionados", []))]
+    if not rota:
+        texto_rota = "—"
+    elif resultado.get("buscou_rota", True):
+        texto_rota = " → ".join([nome(0)] + [nome(i) for i in rota] + [nome(0)])
+    else:
+        texto_rota = " → ".join([nome(0)] + [nome(i) for i in rota] + [nome(0)]) + "  (poucos pontos: a ordem não muda a distância)"
     textos = {
-        "valor": formatar("valor"),
-        "tempo": formatar("tempo", " s"),
+        "lixo": numero("lixo", f" de {capacidade}"),
+        "distancia": numero("distancia"),
+        "tempo": tempo(),
         "selecionados": ", ".join(nome(i) for i in selecionados) or "—",
-        "rota": " → ".join([nome(0)] + [nome(i) for i in rota] + [nome(0)]) if rota else "—",
+        "rota": texto_rota,
     }
     historico = [
         {"passo": i + 1, "valor": float(v)}
@@ -146,6 +143,7 @@ class Estado(rx.State):
 
     def _problema(self):
         return {
+            "pontos": self.n,
             "n": self.n,
             "distancias": copy.deepcopy(self.distancias),
             "residuos": copy.deepcopy(self.residuos),
@@ -193,13 +191,13 @@ class Estado(rx.State):
                     raise CampoInvalido("A temperatura final deve ser menor que a inicial.")
             problema = self._problema()
             if self.metodo == "subida":
-                resultado = _chamar(ALG_SUBIDA, "executar", problema)
+                resultado = ponte.executar_subida(problema)
             elif self.metodo == "tentativas":
-                resultado = _chamar(ALG_TENTATIVAS, "executar", problema, parametros["tentativas"])
+                resultado = ponte.executar_tentativas(problema, parametros["tentativas"])
             else:
-                resultado = _chamar(ALG_TEMPERA, "executar", problema, parametros["temp_inicial"],
-                                    parametros["temp_final"], parametros["fator"])
-            self.busca_res, self.busca_hist = _resumir(resultado, self.rotulos)
+                resultado = ponte.executar_tempera(problema, parametros["temp_inicial"],
+                                                   parametros["temp_final"], parametros["fator"])
+            self.busca_res, self.busca_hist = _resumir(resultado, self.rotulos, self.capacidade)
         except (NaoImplementado, CampoInvalido) as erro:
             return rx.toast.warning(str(erro))
         except Exception as erro:
@@ -224,7 +222,7 @@ class Estado(rx.State):
             intervalo = _numero(self.intervalo, "Intervalo de geração", 1, inteiro=True)
             resultado = _chamar(ALG_GENETICO, "executar", self._problema(),
                                 populacao, geracoes, cruzamento, mutacao, intervalo)
-            self.ag_res, self.ag_hist = _resumir(resultado, self.rotulos)
+            self.ag_res, self.ag_hist = _resumir(resultado, self.rotulos, self.capacidade)
         except (NaoImplementado, CampoInvalido) as erro:
             return rx.toast.warning(str(erro))
         except Exception as erro:

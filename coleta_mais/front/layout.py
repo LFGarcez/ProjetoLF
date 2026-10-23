@@ -223,7 +223,8 @@ def area_resultados(resumo, historico, vazio):
             rx.cond(
                 resumo.length() > 0,
                 rx.vstack(
-                    _linha("Melhor valor", resumo["valor"]),
+                    _linha("Lixo coletado", resumo["lixo"]),
+                    _linha("Distância da rota", resumo["distancia"]),
                     _linha("Tempo", resumo["tempo"]),
                     _linha("Pontos escolhidos", resumo["selecionados"]),
                     _linha("Ordem da rota", resumo["rota"]),

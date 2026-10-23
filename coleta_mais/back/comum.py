@@ -4,6 +4,68 @@ import numpy as np
 
 
 
+#============================== parte da solucao inicial ===================================
+
+def solucaoInicialMochila(problema):
+  """Gera uma solução inicial valida para a mochila"""
+  pontos = problema ["pontos"]
+  residuos = problema["residuos"]
+  capacidade = problema ["capacidade"]
+
+  solucao = [0] + [1] * pontos
+
+  carga  = sum (residuos[i] for i in range (1, pontos + 1))
+
+  while carga > capacidade:
+   marcados = [ i for i in range(1, pontos + 1) if solucao [i] == 1]
+   i = np.random.choice(marcados)
+   solucao[i] = 0
+   carga -= residuos[i]
+
+  return solucao, carga
+
+
+
+
+
+
+def solucaoInicialCv(mochila, problema):
+  
+  """Gera uma rota inicial para o caixeiro"""
+  pontos = [i for i in range (1, len(mochila)) if mochila[i] == 1]
+  np.random.shuffle(pontos)
+  vi_cv = 0
+  si_cv = [0] + pontos
+
+  for j in range(0, len(si_cv) - 1 ):
+    if j == len(si_cv) - 2:
+        vi_cv += problema["distancias"][si_cv[j + 1]][si_cv[0]]                                 
+    vi_cv += problema["distancias"][si_cv[j]][si_cv[j + 1]]
+
+  return si_cv, vi_cv
+
+
+
+
+
+
+
+
+def solucaoInicial(problema):
+  
+  """Gera a solução completa 1º mochila e 2º rota"""
+
+
+  mochila, vi_mochila = solucaoInicialMochila(problema)
+  rota, vi_cv = solucaoInicialCv(mochila, problema)
+  return mochila, rota, vi_cv, vi_mochila
+
+
+
+
+
+#============================== parte dos sucessores ===================================
+
 # não sei se precisa tratar caso apessoa peça só um ponto
 def sucessoresCv(algoritmo, solucao_atual, valor_atual, problema):
     posicao = np.random.randint(1, len(solucao_atual))
@@ -33,7 +95,7 @@ def sucessoresCv(algoritmo, solucao_atual, valor_atual, problema):
 
 
 
-    #if subida return maior valor 
+    #if subida return nenor valor/ melhor sucessor
     if algoritmo == "subida":
 
         for i in range(0, len(sucessores)):
@@ -48,13 +110,6 @@ def sucessoresCv(algoritmo, solucao_atual, valor_atual, problema):
 
 
     
-
-
-
-
-
-
-
 
 
 
@@ -138,7 +193,7 @@ def sucessoresMochila(algoritmo, solucao_atual, valor_atual, problema):
         for i in range(1, problema["pontos"] + 1):
 
              # Acha o primeiro ponto marcado e tira da BASE.
-             if solucao_nova[i] == 1:
+             if solucao_base[i] == 1:
      
                  solucao_base[i] = 0
                  pula = i # lembra qual ponto saiu
@@ -159,6 +214,15 @@ def sucessoresMochila(algoritmo, solucao_atual, valor_atual, problema):
 #if tempera return array de solucao aleatoria
     if algoritmo == "tempera":
         return sucessores[np.random.randint(0, len(sucessores))]
+    
+
+
+
+
+
+    # ===================== avaliar ===========================
+
+
 
 
 

@@ -1,4 +1,4 @@
-#!/home/carlos/Documentos/projetos/coleta_mais/.venv/bin/python3
+#!/home/carlos/Documentos/projetos/ProjetoLF/coleta_mais/.venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
