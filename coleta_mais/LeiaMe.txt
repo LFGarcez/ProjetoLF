@@ -1,0 +1,38 @@
+
+## Como rodar
+
+1. Descompacte o arquivo ZIP.
+2. Entre na pasta `ColetaMais`.
+3. Abra o PowerShell nessa pasta — a pasta deve conter `rxconfig.py`.
+4. Execute os comandos, um por vez:
+obs: a versão do py que to usando é a Python 3.12.3
+
+
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+reflex run
+
+
+Se a ativação do ambiente virtual for bloqueada, execute este comando e tente ativar novamente:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+
+Quando o projeto iniciar, abra no navegador o endereço mostrado no terminal (normalmente `http://localhost:3000`).
+
+
+
+
+## Pastas
+- `front/`      -> telas 
+- `back/`       -> funcionalidades: gerar o problema e gerar os PDFs de análise
+- `algoritmos/` -> subida de encosta, têmpera simulada e genético na parte 2 do projeto
+- `assets/`     -> logos e cores (tema.css)
+
+
+
+
+
+
